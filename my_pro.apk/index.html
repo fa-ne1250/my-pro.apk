@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Country Time Translator</title>
+  <style>
+    body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:#f0f9ff;margin:0;font-family:sans-serif;color:#0f172a}
+    .card{background:#fff;padding:20px;border-radius:14px;box-shadow:0 8px 30px rgba(16,24,40,0.08);width:500px;max-width:96%}
+    h1{margin:0 0 12px;font-size:22px;text-align:center}
+    label{display:block;font-size:14px;margin-bottom:6px;color:#334155}
+    select,input{width:100%;padding:10px;border-radius:10px;border:1px solid #e2e8f0;font-size:14px;margin-bottom:12px}
+    button{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;background:#0284c7;color:white;font-weight:600;width:100%}
+    .result{margin-top:16px;padding:14px;border-radius:10px;background:#f8fafc;border:1px solid #e6eef6}
+    .muted{color:#64748b;font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Country Time Translator</h1>
+
+    <label for="srcCountry">From Country</label>
+    <select id="srcCountry"></select>
+
+    <label for="dstCountry">To Country</label>
+    <select id="dstCountry"></select>
+
+    <label for="localdt">Date & Time (from country)</label>
+    <input id="localdt" type="datetime-local" />
+
+    <button id="convert">Convert</button>
+
+    <div id="result" class="result" hidden>
+      <div><strong>Source:</strong> <span id="srcOut"></span> <span class="muted" id="srcZone"></span></div>
+      <div><strong>Converted:</strong> <span id="dstOut"></span> <span class="muted" id="dstZone"></span></div>
+    </div>
+  </div>
+
+  <!-- Include Luxon -->
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3/build/global/luxon.min.js"></script>
+
+  <script>
+    const { DateTime } = luxon;
+
+    const countries = {
+      "Ethiopia (Addis Ababa)": "Africa/Addis_Ababa",
+      "USA (New York)": "America/New_York",
+      "UK (London)": "Europe/London",
+      "Germany (Berlin)": "Europe/Berlin",
+      "India (Delhi)": "Asia/Kolkata",
+      "China (Beijing)": "Asia/Shanghai",
+      "Japan (Tokyo)": "Asia/Tokyo",
+      "Australia (Sydney)": "Australia/Sydney",
+      "Canada (Toronto)": "America/Toronto",
+      "Brazil (São Paulo)": "America/Sao_Paulo",
+      "South Africa (Johannesburg)": "Africa/Johannesburg",
+      "UAE (Dubai)": "Asia/Dubai",
+      "Saudi Arabia (Riyadh)": "Asia/Riyadh",
+      "Kenya (Nairobi)": "Africa/Nairobi",
+      "Russia (Moscow)": "Europe/Moscow",
+      "Turkey (Istanbul)": "Europe/Istanbul"
+    };
+
+    const srcSelect = document.getElementById('srcCountry');
+    const dstSelect = document.getElementById('dstCountry');
+
+    Object.keys(countries).forEach(name => {
+      const opt1 = document.createElement('option'); opt1.value = countries[name]; opt1.textContent = name; srcSelect.appendChild(opt1);
+      const opt2 = document.createElement('option'); opt2.value = countries[name]; opt2.textContent = name; dstSelect.appendChild(opt2);
+    });
+
+    srcSelect.value = "Africa/Addis_Ababa";
+    dstSelect.value = "America/New_York";
+
+    const localdt = document.getElementById('localdt');
+    (function setNow(){
+      const now = DateTime.now().setZone(srcSelect.value);
+      localdt.value = now.toFormat("yyyy-LL-dd'T'HH:mm");
+    })();
+
+    document.getElementById('convert').addEventListener('click', ()=>{
+      const srcZone = srcSelect.value;
+      const dstZone = dstSelect.value;
+      const dtVal = localdt.value;
+      if(!dtVal){ alert('Please pick a date and time.'); return; }
+
+      // Parse input in source timezone using Luxon
+      const srcDate = DateTime.fromISO(dtVal, { zone: srcZone });
+      const dstDate = srcDate.setZone(dstZone);
+
+      const fmt = { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' };
+      document.getElementById('srcOut').textContent = srcDate.toFormat('DDD, HH:mm');
+      document.getElementById('dstOut').textContent = dstDate.toFormat('DDD, HH:mm');
+      document.getElementById('srcZone').textContent = '('+srcZone+')';
+      document.getElementById('dstZone').textContent = '('+dstZone+')';
+      document.getElementById('result').hidden = false;
+    });
+  </script>
+</body>
+</html>
+  
+</body>
+</html>
